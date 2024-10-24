@@ -5,6 +5,10 @@ import "../index.css";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Typography } from '@mui/material';
+import { validateName,
+         validateEmail,
+         validatePassword
+ } from './Validation';
 
 function SignupForm() {
   const navigate = useNavigate();
@@ -13,9 +17,29 @@ function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState({
+    name: "",
+    email: "",
+    password: ""
+  })
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const nameValidation = validateName(name);
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+
+    if(!nameValidation.isValid ||
+      !emailValidation.isValid ||
+      !passwordValidation.isValid
+    ){
+      setFormError({
+        name: nameValidation.Message,
+        email: emailValidation.Message,
+        password: passwordValidation.Message
+      })
+    }
 
     try {
       const response = await axios.post('http://localhost:9090/api/signup', {
@@ -43,7 +67,7 @@ function SignupForm() {
         Sign Up
       </Typography>
       
-      {error && <p className="error-message">{error}</p>}
+      {error && <p className="error">{error}</p>}
       
       <TextField
         label="Name"
@@ -53,6 +77,8 @@ function SignupForm() {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
+      {formError.name && <p className="error">{formError.name}</p>}
+
       
       <TextField
         label="Email"
@@ -62,6 +88,8 @@ function SignupForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
+      {formError.email && <p className="error">{formError.email}</p>}
+
       
       <TextField
         label="Password"
@@ -72,6 +100,8 @@ function SignupForm() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      {formError.password && <p className="error">{formError.password}</p>}
+
       
       <SubmitButton buttonTitle="Sign Up" />
     </form>
